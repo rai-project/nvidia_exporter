@@ -2,6 +2,8 @@ package nvidiaexporter
 
 import (
 	"errors"
+	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -208,6 +210,24 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (e *Exporter) Register(registery prometheus.Registerer) {
-	registery.MustRegister(e)
+func (e *Exporter) Register(registery prometheus.Registerer) error {
+	return registery.Register(e)
+}
+
+func (e *Exporter) Serve(listenAddress string) error {
+	const metricsPath = "/metrics"
+
+	landingPageHTML := []byte(fmt.Sprintf(`<html>
+             <head><title>NVIDIA Exporter</title></head>
+             <body>
+             <h1>NVIDIA Exporter</h1>
+             <p><a href='%s'>Metrics</a></p>
+             </body>
+             </html>`, metricsPath))
+
+	http.Handle(metricsPath, prometheus.Handler())
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write(landingPageHTML)
+	})
+	return http.ListenAndServe(listenAddress, nil)
 }
