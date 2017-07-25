@@ -10,5 +10,8 @@ import (
 func TestExporter(t *testing.T) {
 	exporter, err := New()
 	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
 	exporter.Register(prometheus.DefaultRegisterer)
 }
