@@ -98,6 +98,7 @@ func New() (*Exporter, error) {
 // Describe describes all the metrics ever exported by the nvml/nvidia exporter.
 // It implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
+
 	ch <- e.up.Desc()
 
 	for _, vec := range e.gauges {
@@ -207,6 +208,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (e *Exporter) Register(registery prometheus.Registry) {
+func (e *Exporter) Register(registery prometheus.Registerer) {
 	registery.MustRegister(e)
 }
